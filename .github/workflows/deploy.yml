@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+      SERVICE_ID: ${{ vars.RENDER_SERVICE_ID }}
+      APP_URL: ${{ vars.PUBLIC_URL }}
+    steps:
+      - name: Trigger Render deploy of this commit
+        run: |
+          curl -fsS -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+            -H "Authorization: Bearer $RENDER_API_KEY" -H "Content-Type: application/json" \
+            -d "{\"commitId\": \"$GITHUB_SHA\"}" > /dev/null
+      - name: Wait until /api/health reports this commit
+        run: |
+          for i in $(seq 1 60); do
+            body=$(curl -fsS --max-time 60 "$APP_URL/api/health" || true)
+            echo "try $i: $body"
+            if echo "$body" | grep -q "\"version\":\"$GITHUB_SHA\"" \
+              && echo "$body" | grep -q '"database":"ok"'; then
+              echo "Deployed $GITHUB_SHA"; exit 0
+            fi
+            sleep 15
+          done
+          echo "Health never reported $GITHUB_SHA"; exit 1

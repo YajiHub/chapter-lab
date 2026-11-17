@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.errors import ApiError, install_error_handlers
+from app.logging import install_request_logging
 from app.routers import admin, attempts, auth, health, lessons, packs, reports
 
 # Built React app; present in the Docker image, absent in local backend-only dev.
@@ -20,6 +21,7 @@ def create_app() -> FastAPI:
         openapi_url="/api/openapi.json",
     )
     install_error_handlers(app)
+    install_request_logging(app)
 
     app.include_router(health.router, prefix="/api")
     for r in (auth, lessons, packs, attempts, reports, admin):

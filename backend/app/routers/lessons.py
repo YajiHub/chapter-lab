@@ -2,17 +2,30 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.errors import error_responses
-from app.pagination import Paging
+from app.errors import ApiError, error_responses
+from app.models import Lesson, StudyPack, User
+from app.pagination import PAGE_SIZE, Paging, paginate
 from app.routers._stub import todo
 from app.schemas import GenerateOut, LessonInput, LessonOut, LessonSummary, PackInput, PackOut, Page
 from app.security import Csrf, StudentUser
 
 router = APIRouter(prefix="/lessons", tags=["lessons"])
 Db = Annotated[Session, Depends(get_db)]
+
+
+def _owned_lesson(db: Session, user: User, lesson_id: uuid.UUID) -> Lesson:
+    lesson = db.scalar(
+        select(Lesson).where(
+            Lesson.id == lesson_id, Lesson.owner_id == user.id, Lesson.archived_at.is_(None)
+        )
+    )
+    if lesson is None:
+        raise ApiError("not_found", "Lesson not found.")
+    return lesson
 
 
 @router.get(
@@ -22,7 +35,21 @@ Db = Annotated[Session, Depends(get_db)]
     summary="List owned lessons",
 )
 def list_lessons(user: StudentUser, db: Db, paging: Paging) -> Page[LessonSummary]:
-    todo()
+    stmt = select(Lesson).where(Lesson.owner_id == user.id, Lesson.archived_at.is_(None))
+    if paging.q:
+        escaped = paging.q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        stmt = stmt.where(Lesson.title.ilike(f"%{escaped}%", escape="\\"))
+    if paging.sort == "oldest":
+        stmt = stmt.order_by(Lesson.created_at.asc(), Lesson.id.asc())
+    else:
+        stmt = stmt.order_by(Lesson.created_at.desc(), Lesson.id.desc())
+    rows, total = paginate(db, stmt, paging.page)
+    return Page[LessonSummary](
+        items=[LessonSummary.model_validate(r) for r in rows],
+        page=paging.page,
+        page_size=PAGE_SIZE,
+        total=total,
+    )
 
 
 @router.post(
@@ -34,7 +61,11 @@ def list_lessons(user: StudentUser, db: Db, paging: Paging) -> Page[LessonSummar
     summary="Save lesson notes",
 )
 def create_lesson(body: LessonInput, user: StudentUser, db: Db) -> LessonOut:
-    todo()
+    lesson = Lesson(owner_id=user.id, title=body.title, notes=body.notes)
+    db.add(lesson)
+    db.commit()
+    db.refresh(lesson)
+    return LessonOut.model_validate(lesson)
 
 
 @router.get(
@@ -44,7 +75,7 @@ def create_lesson(body: LessonInput, user: StudentUser, db: Db) -> LessonOut:
     summary="Read an owned lesson",
 )
 def get_lesson(lesson_id: uuid.UUID, user: StudentUser, db: Db) -> LessonOut:
-    todo()
+    return LessonOut.model_validate(_owned_lesson(db, user, lesson_id))
 
 
 @router.put(
@@ -55,7 +86,12 @@ def get_lesson(lesson_id: uuid.UUID, user: StudentUser, db: Db) -> LessonOut:
     summary="Replace the title and notes",
 )
 def update_lesson(lesson_id: uuid.UUID, body: LessonInput, user: StudentUser, db: Db) -> LessonOut:
-    todo()
+    lesson = _owned_lesson(db, user, lesson_id)
+    lesson.title = body.title
+    lesson.notes = body.notes
+    db.commit()
+    db.refresh(lesson)
+    return LessonOut.model_validate(lesson)
 
 
 @router.delete(
@@ -66,7 +102,19 @@ def update_lesson(lesson_id: uuid.UUID, body: LessonInput, user: StudentUser, db
     summary="Archive a lesson and its active packs",
 )
 def archive_lesson(lesson_id: uuid.UUID, user: StudentUser, db: Db) -> None:
-    todo()
+    lesson = _owned_lesson(db, user, lesson_id)
+    now = func.now()
+    lesson.archived_at = now
+    db.execute(
+        update(StudyPack)
+        .where(
+            StudyPack.lesson_id == lesson.id,
+            StudyPack.owner_id == user.id,
+            StudyPack.archived_at.is_(None),
+        )
+        .values(archived_at=now)
+    )
+    db.commit()
 
 
 @router.post(

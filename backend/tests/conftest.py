@@ -23,6 +23,7 @@ os.environ["PROVIDER_MODE"] = "stub"
 os.environ["COOKIE_SECURE"] = "false"
 
 import psycopg  # noqa: E402
+import psycopg.sql  # noqa: E402
 import pytest  # noqa: E402
 from alembic.config import Config  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
@@ -44,7 +45,7 @@ def _ensure_database() -> None:
     name = TEST_URL.rsplit("/", 1)[1].split("?")[0]
     with psycopg.connect(f"{admin_url}/postgres", autocommit=True) as conn:
         if not conn.execute("SELECT 1 FROM pg_database WHERE datname = %s", (name,)).fetchone():
-            conn.execute(f'CREATE DATABASE "{name}"')  # noqa: S608  name is from our own config
+            conn.execute(psycopg.sql.SQL("CREATE DATABASE {}").format(psycopg.sql.Identifier(name)))
 
 
 @pytest.fixture(scope="session", autouse=True)

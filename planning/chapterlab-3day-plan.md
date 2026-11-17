@@ -127,12 +127,12 @@ Each lane owns its folders. Only Phase 0 touches `models.py`, `schemas.py`, `err
 
 ### Day 1 PM — Phase 1: Walking skeleton live + parallel lanes start
 - [ ] 🤖 L6: Render service + Neon + deploy hook + `deploy.yml` (deploy after green main, poll health for the commit). Branch protection on `main`.
-- [ ] 🤖 L1: login/logout/me, argon2, sessions, CSRF, role deps, disabled-account check, login rate limit, request logging.
-- [ ] 🤖 L2: lessons CRUD with search/sort/pagination, owner 404s, archive.
-- [ ] 🤖 L3: providers, stub, prompt with numbered paragraphs, chain, OpenRouter picker.
-- [ ] 🤝 L3: `validate.py`: 5 questions, 4 distinct choices, index 0–3, known paragraph id, quote is an exact substring of that paragraph after whitespace normalization. You must be able to explain this in the defense.
-- [ ] 🤖 L4: app shell, SignIn, Lessons list + form.
-- [ ] 🧑 Run two real trial generations with the demo lesson against each provider. Record model ID, time, and validation result.
+- [x] 🤖 L1: login/logout/me, argon2, sessions, CSRF, role deps, disabled-account check, login rate limit, request logging.
+- [x] 🤖 L2: lessons CRUD with search/sort/pagination, owner 404s, archive.
+- [x] 🤖 L3: providers, stub, prompt with numbered paragraphs, chain, OpenRouter picker.
+- [x] 🤝 L3: `validate.py`: 5 questions, 4 distinct choices, index 0–3, known paragraph id, quote is an exact substring of that paragraph after whitespace normalization. You must be able to explain this in the defense.
+- [x] 🤖 L4: app shell, SignIn, Lessons list + form.
+- [x] 🧑 Run two real trial generations with the demo lesson against each provider. Record model ID, time, and validation result.
 - **Verify:** the public URL shows the health check with the merged commit; you can sign in and save a lesson on the deployed app.
 
 ### Day 2 — Phase 2: Full feature set

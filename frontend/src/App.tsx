@@ -1,19 +1,36 @@
-import { useQuery } from '@tanstack/react-query'
-import { api } from './api/client'
+import { Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './auth'
+import { Layout } from './components/Layout'
+import { RequireRole } from './components/RequireRole'
+import Admin from './pages/Admin'
+import Dashboard from './pages/Dashboard'
+import LessonForm from './pages/LessonForm'
+import Lessons from './pages/Lessons'
+import NotFound from './pages/NotFound'
+import Placeholder from './pages/Placeholder'
+import SignIn from './pages/SignIn'
 
-// Phase 0 placeholder: proves the typed client + proxy work. L4 replaces this with the router shell.
 export default function App() {
-  const health = useQuery({
-    queryKey: ['health'],
-    queryFn: async () => (await api.GET('/api/health')).data,
-  })
   return (
-    <main className="mx-auto max-w-xl p-8">
-      <h1 className="text-2xl font-semibold">ChapterLab</h1>
-      <p className="mt-2 text-slate-600">
-        API: {health.isLoading ? 'checking…' : (health.data?.status ?? 'unreachable')} · version{' '}
-        {health.data?.version ?? '—'}
-      </p>
-    </main>
+    <AuthProvider>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/signin" element={<SignIn />} />
+          <Route element={<RequireRole role="student" />}>
+            <Route index element={<Dashboard />} />
+            <Route path="lessons" element={<Lessons />} />
+            <Route path="lessons/new" element={<LessonForm />} />
+            <Route path="lessons/:lessonId/edit" element={<LessonForm />} />
+            <Route path="packs" element={<Placeholder title="Study packs" />} />
+            <Route path="packs/:packId" element={<Placeholder title="Study pack" />} />
+            <Route path="attempts/:attemptId" element={<Placeholder title="Attempt results" />} />
+          </Route>
+          <Route element={<RequireRole role="admin" />}>
+            <Route path="admin" element={<Admin />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </AuthProvider>
   )
 }

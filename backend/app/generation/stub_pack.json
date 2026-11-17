@@ -1,0 +1,55 @@
+{
+  "guide": [
+    {"label": "Client-side rendering", "description": "The browser receives a basic page and JavaScript, then builds the interface and may fetch data after loading."},
+    {"label": "Server-side rendering", "description": "HTML is generated when a request arrives, so the initial response can show current content."},
+    {"label": "Static site generation", "description": "HTML is prepared at build time and served as already generated files; changes appear after a rebuild."},
+    {"label": "Hydration", "description": "Client-side event handlers are attached to HTML already rendered by the server or build process."}
+  ],
+  "comparison": [
+    {"label": "Stable help page", "description": "Static generation fits content that rarely changes."},
+    {"label": "Public page needing current data", "description": "Server-side rendering fits when information must be current when requested."},
+    {"label": "Interactive signed-in dashboard", "description": "Client-side rendering can be a reasonable choice for frequent interaction."}
+  ],
+  "questions": [
+    {
+      "prompt": "When does static site generation prepare HTML?",
+      "choices": ["At build time", "When each request arrives", "After JavaScript loads in the browser", "During hydration"],
+      "correctChoice": 0,
+      "explanation": "Static site generation prepares HTML ahead of time, during the build.",
+      "paragraphId": 4,
+      "quote": "Static site generation prepares HTML at build time."
+    },
+    {
+      "prompt": "When does server-side rendering generate HTML?",
+      "choices": ["At build time", "When a request arrives", "Only after a rebuild", "After the browser fetches data"],
+      "correctChoice": 1,
+      "explanation": "Server-side rendering generates HTML for each incoming request.",
+      "paragraphId": 3,
+      "quote": "Server-side rendering generates HTML when a request arrives."
+    },
+    {
+      "prompt": "Which approach suits a frequently used interactive dashboard behind sign-in?",
+      "choices": ["Static site generation", "Server-side rendering with no cache", "Client-side rendering", "A rebuild for every change"],
+      "correctChoice": 2,
+      "explanation": "The notes say client-side rendering can be a reasonable choice for an interactive signed-in dashboard.",
+      "paragraphId": 6,
+      "quote": "For a frequently used interactive dashboard behind sign-in, client-side rendering can be a reasonable choice."
+    },
+    {
+      "prompt": "Why can a page show content before some controls are interactive?",
+      "choices": ["The server is still rendering the HTML", "The build has not finished", "The cache is empty", "JavaScript has not yet attached event handlers through hydration"],
+      "correctChoice": 3,
+      "explanation": "Hydration attaches event handlers after the HTML is displayed, so controls can briefly be inactive.",
+      "paragraphId": 5,
+      "quote": "A page may display its content before JavaScript makes some controls interactive."
+    },
+    {
+      "prompt": "With static site generation, when do content changes appear?",
+      "choices": ["Immediately on the next request", "After a rebuild or another supported refresh mechanism", "When the browser fetches data after loading", "When hydration finishes"],
+      "correctChoice": 1,
+      "explanation": "Pre-built files only change after a rebuild or another supported refresh.",
+      "paragraphId": 4,
+      "quote": "Content changes appear after a rebuild or another supported refresh mechanism."
+    }
+  ]
+}
