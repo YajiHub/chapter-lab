@@ -110,19 +110,19 @@ Each lane owns its folders. Only Phase 0 touches `models.py`, `schemas.py`, `err
 ## Phased Execution Checklist
 
 ### Before Day 1, human-only (start now)
-- [ ] 🧑 Create a GitHub account and **public** repo. Run `git init` here and push.
+- [x] 🧑 Create a GitHub account and **public** repo. Run `git init` here and push.
 - [ ] 🧑 Sign up for Render (GitHub login), Neon, Google AI Studio (Gemini key), Groq, and OpenRouter. Store the keys only in Render env vars and a local `.env`.
 - [ ] 🧑 Recruit 5 testers for Day 3 afternoon. Prepare the course consent form and SUS / ISO 25010 forms.
 - [ ] 🧑 Confirm the due date and solo approval with the instructor.
 - [ ] 🧑 Check free-tier limits (Render, Neon, Gemini, Groq, OpenRouter) and note them in `docs/sessions/`.
 
 ### Day 1 AM — Phase 0: Contract freeze (sequential, no parallel agents)
-- [ ] 🤖 Scaffold backend (uv, FastAPI app factory, config, db, ruff, pytest) and frontend (Vite React TS, Tailwind, Router, Query).
-- [ ] 🤝 Write `models.py` + initial Alembic migration per the data model above.
-- [ ] 🤖 Write `schemas.py` and `errors.py` covering every route in `openapi.yaml`. Stub routers return 501 so the OpenAPI document is complete.
-- [ ] 🤖 Generate `frontend/src/api/schema.d.ts` from `/api/openapi.json`. Add `client.ts` with the CSRF header.
-- [ ] 🤖 Write `AGENTS.md`: lane ownership, frozen files, commands, test rules.
-- [ ] 🤖 Dockerfile + local compose + `/api/health` + GitHub Actions `ci.yml` (ruff, pytest with a Postgres service).
+- [x] 🤖 Scaffold backend (uv, FastAPI app factory, config, db, ruff, pytest) and frontend (Vite React TS, Tailwind, Router, Query).
+- [x] 🤝 Write `models.py` + initial Alembic migration per the data model above.
+- [x] 🤖 Write `schemas.py` and `errors.py` covering every route in `openapi.yaml`. Stub routers return 501 so the OpenAPI document is complete.
+- [x] 🤖 Generate `frontend/src/api/schema.d.ts` from `/api/openapi.json`. Add `client.ts` with the CSRF header.
+- [x] 🤖 Write `AGENTS.md`: lane ownership, frozen files, commands, test rules.
+- [x] 🤖 Dockerfile + local compose + `/api/health` + GitHub Actions `ci.yml` (ruff, pytest with a Postgres service).
 - **Verify:** `docker compose up` serves `/api/docs`, `/api/health` shows `database: ok`, CI is green on the first PR.
 
 ### Day 1 PM — Phase 1: Walking skeleton live + parallel lanes start
